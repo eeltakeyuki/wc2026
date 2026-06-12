@@ -2,16 +2,12 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/**/*.ts": {
-      "runtime": "@vercel/node@5.8.17"
-    }
+    "api/competitions/WC/matches.ts":  { "runtime": "@vercel/node@5.8.17" },
+    "api/competitions/WC/standings.ts": { "runtime": "@vercel/node@5.8.17" },
+    "api/competitions/WC/scorers.ts":  { "runtime": "@vercel/node@5.8.17" },
+    "api/matches/[id].ts":             { "runtime": "@vercel/node@5.8.17" },
+    "api/news/search.ts":              { "runtime": "@vercel/node@5.8.17" }
   },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [{ "key": "x-matched-api", "value": "true" }]
-    }
-  ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
