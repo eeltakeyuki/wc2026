@@ -41,7 +41,7 @@ export function H2HModal({ match, onClose }: MatchDetailModalProps) {
   useEffect(() => {
     const home = match.homeTeam?.name ?? match.homeTeam?.shortName ?? "";
     const away = match.awayTeam?.name ?? match.awayTeam?.shortName ?? "";
-    const q = `${home} ${away} ワールドカップ 2026`;
+    const q = `${home} vs ${away} ワールドカップ 2026`;
     fetchNews(q)
       .then((d) => setNews(d.articles))
       .catch((e) => setNewsError(e instanceof Error ? e.message : String(e)))
