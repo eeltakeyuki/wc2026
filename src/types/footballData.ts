@@ -112,3 +112,17 @@ export interface H2HResponse {
   aggregates: H2HAggregates;
   matches: Match[];
 }
+
+export interface NewsArticle {
+  title: string;
+  description: string;
+  url: string;
+  source: { name: string; url: string };
+  publishedAt: string;
+  image: string | null;
+}
+
+export interface NewsResponse {
+  articles: NewsArticle[];
+  totalArticles: number;
+}

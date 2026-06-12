@@ -76,6 +76,11 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/api\/matches\/(\d+)$/, '/matches/$1/head2head'),
           headers: { 'X-Auth-Token': env.VITE_API_KEY ?? '' },
         },
+        '/api/news': {
+          target: 'https://gnews.io/api/v4',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/news\/search/, '/search') + `&token=${env.GNEWS_API_KEY ?? ''}`,
+        },
       },
     },
   }

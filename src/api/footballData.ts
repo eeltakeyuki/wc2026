@@ -3,6 +3,7 @@ import type {
   StandingsResponse,
   ScorersResponse,
   H2HResponse,
+  NewsResponse,
 } from "../types/footballData";
 
 async function apiFetch<T>(path: string): Promise<T> {
@@ -27,4 +28,10 @@ export function fetchScorers(): Promise<ScorersResponse> {
 
 export function fetchH2H(matchId: number): Promise<H2HResponse> {
   return apiFetch<H2HResponse>(`/matches/${matchId}`);
+}
+
+export async function fetchNews(query: string): Promise<NewsResponse> {
+  const res = await fetch(`/api/news/search?q=${encodeURIComponent(query)}&lang=en&max=5`);
+  if (!res.ok) throw new Error(`News API error ${res.status}`);
+  return res.json() as Promise<NewsResponse>;
 }
