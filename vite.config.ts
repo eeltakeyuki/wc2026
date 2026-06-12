@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
+        selfDestroying: false,
         includeAssets: ['favicon.svg', 'icons/*.png'],
         manifest: {
           name: 'FIFA W杯 2026',
@@ -26,6 +27,8 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
+          skipWaiting: true,
+          clientsClaim: true,
           navigateFallback: 'index.html',
           navigateFallbackDenylist: [/^\/api\//],
           runtimeCaching: [
