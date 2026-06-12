@@ -26,5 +26,5 @@ export function fetchScorers(): Promise<ScorersResponse> {
 }
 
 export function fetchH2H(matchId: number): Promise<H2HResponse> {
-  return apiFetch<H2HResponse>(`/matches/${matchId}/head2head`);
+  return apiFetch<H2HResponse>(`/matches/${matchId}`);
 }
