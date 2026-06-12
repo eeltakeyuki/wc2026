@@ -15,45 +15,50 @@ export function H2HModal({ match, onClose }: H2HModalProps) {
   useEffect(() => {
     fetchH2H(match.id)
       .then(setData)
-      .catch((e) => setError(e.message))
+      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   }, [match.id]);
 
-  // Escキーで閉じる
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
+  const homeName = match.homeTeam?.shortName ?? match.homeTeam?.tla ?? "ホーム";
+  const awayName = match.awayTeam?.shortName ?? match.awayTeam?.tla ?? "アウェイ";
+  const homeTla = match.homeTeam?.tla ?? "-";
+  const awayTla = match.awayTeam?.tla ?? "-";
+
   return (
     <div
       className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center"
       onClick={onClose}
     >
-      {/* モバイル: 下から、PC: 中央 */}
       <div
         className="bg-slate-800 border border-slate-600 w-full sm:rounded-xl sm:max-w-lg
                    rounded-t-2xl max-h-[85vh] sm:max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ドラッグハンドル（モバイル） */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
           <div className="w-10 h-1 bg-slate-600 rounded-full" />
         </div>
 
-        {/* ヘッダー */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
           <div className="flex items-center gap-2 min-w-0">
-            <img src={match.homeTeam.crest} alt={match.homeTeam.name}
-              className="w-6 h-6 sm:w-7 sm:h-7 object-contain flex-shrink-0"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            <span className="font-bold text-white text-sm truncate">{match.homeTeam.shortName}</span>
+            {match.homeTeam?.crest && (
+              <img src={match.homeTeam.crest} alt={homeName}
+                className="w-6 h-6 sm:w-7 sm:h-7 object-contain flex-shrink-0"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            )}
+            <span className="font-bold text-white text-sm truncate">{homeName}</span>
             <span className="text-slate-400 text-sm flex-shrink-0">vs</span>
-            <span className="font-bold text-white text-sm truncate">{match.awayTeam.shortName}</span>
-            <img src={match.awayTeam.crest} alt={match.awayTeam.name}
-              className="w-6 h-6 sm:w-7 sm:h-7 object-contain flex-shrink-0"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <span className="font-bold text-white text-sm truncate">{awayName}</span>
+            {match.awayTeam?.crest && (
+              <img src={match.awayTeam.crest} alt={awayName}
+                className="w-6 h-6 sm:w-7 sm:h-7 object-contain flex-shrink-0"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            )}
           </div>
           <button onClick={onClose}
             className="text-slate-400 hover:text-white text-xl leading-none flex-shrink-0 ml-2 p-1">×</button>
@@ -70,27 +75,33 @@ export function H2HModal({ match, onClose }: H2HModalProps) {
 
           {data && (
             <>
-              <div>
-                <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-2">過去の直接対決</h3>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <StatBox label={match.homeTeam.tla} value={data.aggregates.homeTeam.wins} sub="勝" color="text-green-400" />
-                  <StatBox label="引き分け" value={data.aggregates.homeTeam.draws} sub="" color="text-slate-300" />
-                  <StatBox label={match.awayTeam.tla} value={data.aggregates.awayTeam.wins} sub="勝" color="text-blue-400" />
+              {data.aggregates && (
+                <div>
+                  <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-2">過去の直接対決</h3>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <StatBox label={homeTla} value={data.aggregates.homeTeam.wins} sub="勝" color="text-green-400" />
+                    <StatBox label="引き分け" value={data.aggregates.homeTeam.draws} sub="" color="text-slate-300" />
+                    <StatBox label={awayTla} value={data.aggregates.awayTeam.wins} sub="勝" color="text-blue-400" />
+                  </div>
+                  <div className="text-center mt-2 text-xs text-slate-500">
+                    通算 {data.aggregates.numberOfMatches} 試合 / 総得点 {data.aggregates.totalGoals}
+                  </div>
                 </div>
-                <div className="text-center mt-2 text-xs text-slate-500">
-                  通算 {data.aggregates.numberOfMatches} 試合 / 総得点 {data.aggregates.totalGoals}
-                </div>
-              </div>
+              )}
 
-              {data.matches.length > 0 && (
+              {data.matches.length > 0 ? (
                 <div>
                   <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-2">直近の対戦</h3>
                   <div className="space-y-2">
-                    {data.matches.map((m) => (
-                      <H2HMatchRow key={m.id} match={m} homeId={match.homeTeam.id} />
-                    ))}
+                    {data.matches
+                      .filter((m) => m.homeTeam && m.awayTeam)
+                      .map((m) => (
+                        <H2HMatchRow key={m.id} match={m} homeId={match.homeTeam?.id ?? 0} />
+                      ))}
                   </div>
                 </div>
+              ) : (
+                <p className="text-slate-500 text-sm text-center py-2">過去の対戦データはありません</p>
               )}
             </>
           )}
@@ -111,11 +122,11 @@ function StatBox({ label, value, sub, color }: { label: string; value: number; s
 
 function H2HMatchRow({ match, homeId }: { match: Match; homeId: number }) {
   const date = new Date(match.utcDate).toLocaleDateString("ja-JP", { year: "numeric", month: "numeric", day: "numeric" });
-  const homeScore = match.score.fullTime.home;
-  const awayScore = match.score.fullTime.away;
-  const isHomeWin = match.score.winner === "HOME_TEAM";
-  const isAwayWin = match.score.winner === "AWAY_TEAM";
-  const perspectiveHome = match.homeTeam.id === homeId;
+  const homeScore = match.score?.fullTime?.home;
+  const awayScore = match.score?.fullTime?.away;
+  const isHomeWin = match.score?.winner === "HOME_TEAM";
+  const isAwayWin = match.score?.winner === "AWAY_TEAM";
+  const perspectiveHome = match.homeTeam?.id === homeId;
 
   const resultColor =
     match.status !== "FINISHED" ? "text-slate-400"
@@ -126,14 +137,14 @@ function H2HMatchRow({ match, homeId }: { match: Match; homeId: number }) {
   return (
     <div className="flex items-center gap-2 text-xs bg-slate-700/30 rounded px-3 py-2">
       <span className="text-slate-500 w-20 flex-shrink-0">{date}</span>
-      <span className="text-slate-300 flex-1 text-right">{match.homeTeam.tla}</span>
+      <span className="text-slate-300 flex-1 text-right">{match.homeTeam?.tla ?? "-"}</span>
       <span className={`font-bold w-12 text-center ${resultColor}`}>
         {homeScore ?? "-"} - {awayScore ?? "-"}
       </span>
-      <span className="text-slate-300 flex-1">{match.awayTeam.tla}</span>
-      {match.score.duration !== "REGULAR" && match.status === "FINISHED" && (
+      <span className="text-slate-300 flex-1">{match.awayTeam?.tla ?? "-"}</span>
+      {match.score?.duration !== "REGULAR" && match.status === "FINISHED" && (
         <span className="text-slate-500 flex-shrink-0">
-          {match.score.duration === "PENALTY_SHOOTOUT" ? "PK" : "延長"}
+          {match.score?.duration === "PENALTY_SHOOTOUT" ? "PK" : "延長"}
         </span>
       )}
     </div>
