@@ -26,10 +26,16 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          // API レスポンスはキャッシュしない（常に最新を取得）
           navigateFallback: 'index.html',
+          navigateFallbackDenylist: [/^\/api\//],
           runtimeCaching: [
             {
+              // API リクエストは常にネットワーク経由（キャッシュしない）
+              urlPattern: /^\/api\//,
+              handler: 'NetworkOnly',
+            },
+            {
+              // チームエンブレム画像はキャッシュして高速化
               urlPattern: /^https:\/\/crests\.football-data\.org\/.*/i,
               handler: 'CacheFirst',
               options: {
