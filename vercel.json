@@ -6,7 +6,7 @@
     "api/competitions/WC/standings.ts": { "runtime": "@vercel/node@5.8.17" },
     "api/competitions/WC/scorers.ts":  { "runtime": "@vercel/node@5.8.17" },
     "api/matches/[id].ts":             { "runtime": "@vercel/node@5.8.17" },
-    "api/news/search.ts":              { "runtime": "@vercel/node@5.8.17" }
+    "api/news.ts":                     { "runtime": "@vercel/node@5.8.17" }
   },
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }

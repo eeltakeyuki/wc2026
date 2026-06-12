@@ -31,7 +31,7 @@ export function fetchH2H(matchId: number): Promise<H2HResponse> {
 }
 
 export async function fetchNews(query: string): Promise<NewsResponse> {
-  const res = await fetch(`/api/news/search?q=${encodeURIComponent(query)}&lang=en&max=5`);
+  const res = await fetch(`/api/news?q=${encodeURIComponent(query)}`);
   if (!res.ok) throw new Error(`News API error ${res.status}`);
   return res.json() as Promise<NewsResponse>;
 }

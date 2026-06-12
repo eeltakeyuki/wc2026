@@ -79,7 +79,7 @@ export default defineConfig(({ mode }) => {
         '/api/news': {
           target: 'https://gnews.io/api/v4',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/news\/search/, '/search') + `&token=${env.GNEWS_API_KEY ?? ''}`,
+          rewrite: (path) => path.replace(/^\/api\/news/, '/search') + `&token=${env.GNEWS_API_KEY ?? ''}`,
         },
       },
     },
